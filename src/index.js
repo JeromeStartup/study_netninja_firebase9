@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app'
 import {
-    getFirestore, collection,getDocs, doc,
-    addDoc,deleteDoc
+    getFirestore, collection, getDocs, doc,
+    addDoc, deleteDoc, onSnapshot
 } from 'firebase/firestore'
 
 const firebaseConfig = {
@@ -20,46 +20,56 @@ initializeApp(firebaseConfig)
 // init services
 const db = getFirestore()
 
-  // collection ref
-const colRef=collection(db,'books')
+// collection ref
+const colRef = collection(db, 'books')
 
-  // get collection data
-getDocs(colRef)
-.then((snapshot)=>{
-    let books =[]
-    snapshot.docs.forEach((doc)=>{
-        books.push({...doc.data(),id:doc.id})
-    })
+// get collection data
+// getDocs(colRef)
+//     .then((snapshot) => {
+//         let books = []
+//         snapshot.docs.forEach((doc) => {
+//             books.push({ ...doc.data(), id: doc.id })
+//         })
+//         console.log(books)
+//     })
+//     .catch(err => {
+//         console.log(err.message)
+//     })
+
+// real time collection data
+onSnapshot(colRef, (snapshot) => {
+    let books = [];
+    snapshot.docs.forEach((doc) => {
+        books.push({ ...doc.data(), id: doc.id });
+    });
+
     console.log(books)
-})
-.catch(err =>{
-    console.log(err.message)
 })
 
 // adding documents
-const addBookForm=document.querySelector('.add')
-addBookForm.addEventListener('submit',(e)=>{
+const addBookForm = document.querySelector('.add')
+addBookForm.addEventListener('submit', (e) => {
     e.preventDefault()
 
-    addDoc(colRef,{
+    addDoc(colRef, {
         title: addBookForm.title.value,
         author: addBookForm.author.value,
     })
-    .then(()=>{
-        addBookForm.reset()
-    })
+        .then(() => {
+            addBookForm.reset()
+        })
 })
 
 //deleting documents
 
-const deleteBookForm=document.querySelector('.delete')
-deleteBookForm.addEventListener('submit',(e)=>{
+const deleteBookForm = document.querySelector('.delete')
+deleteBookForm.addEventListener('submit', (e) => {
     e.preventDefault()
 
-    const docRef =doc(db,'books',deleteBookForm.id.value)
+    const docRef = doc(db, 'books', deleteBookForm.id.value)
     console.log(docRef)
-    
-    deleteDoc(docRef).then(()=>{
+
+    deleteDoc(docRef).then(() => {
         deleteBookForm.reset()
     })
 })
